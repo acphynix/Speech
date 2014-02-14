@@ -19,6 +19,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import analysis.Analyzer;
 import analysis.AudioPoint;
+import analysis.PatternRecognition;
 
 public class SpeechSynthesizer {
 	public SpeechSynthesizer(float sampleRate, AudioFormat af) {
@@ -111,6 +112,7 @@ public class SpeechSynthesizer {
         	AudioPoint p = Analyzer.simplify(shortAudio,16.0,i,i+2000);
         	Analyzer.writeWaveformToFile(p,new File("rsc/output/m"+filename+(String.format("%04.1f", (double)i))+".png"));
     		lockDiag=false;
+            PatternRecognition pr = new PatternRecognition(p);
         }
         //analyze(rawAudio);
     		SpeechSynthesizer.diagPrint(selfFormat);
