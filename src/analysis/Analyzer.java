@@ -103,7 +103,7 @@ public class Analyzer {
 		g.setColor(Color.black);
 //		double step = Math.max(1,in.size()/1600);
 		double xscale=.7;
-		double yscale=0.01;
+		double yscale=0.05;
 		int xstart=in.x;
 		g.setColor(new Color(20,80,140,90));
 		//draw a vertical line every 25 frames.	
@@ -121,7 +121,7 @@ public class Analyzer {
 		}
 		g.setColor(new Color(100,160,220));
 		for(int i=0;i<1600;i+=100*xscale){
-			g.drawString(""+(i/xscale),i+3,370);
+			g.drawString(""+(int)(i/xscale),i+3,370);
 		}
 		g.setColor(new Color(20,80,140));
 		g.drawLine(0,300,1600,300);

@@ -18,7 +18,7 @@ public class AudioPoint {
 	}
 	public void setBefore(AudioPoint bef){
 		if(bef == before)return;
-		System.out.println(before);
+		//System.out.println(before);
 		if(before!=null)bef.setBefore(before);
 		before=bef;
 		before.setNext(this);

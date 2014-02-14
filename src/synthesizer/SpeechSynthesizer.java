@@ -112,10 +112,10 @@ public class SpeechSynthesizer {
         int index=0;
         lockDiag=true;
 //        for(double i=0;i<33;i=(i==0)?1:(int)(i*2)){
-        for(int i=0;i<101;i+=100){
+        for(int i=0;i<99;i+=100){
         	index++;
         	suffix+="a";
-        	AudioPoint p = Analyzer.simplify(shortAudio,16.0,i,i+545);
+        	AudioPoint p = Analyzer.simplify(shortAudio,16.0,i,i+2000);
         	Analyzer.writeWaveformToFile(p,new File("rsc/output/m"+filename+(String.format("%04.1f", (double)i))+".png"));
     		lockDiag=false;
         }
