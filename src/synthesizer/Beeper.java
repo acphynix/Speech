@@ -11,11 +11,11 @@ import java.text.DecimalFormat;
 import javax.sound.sampled.*;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 public class Beeper extends JPanel{
     public static void main(String[] args) throws LineUnavailableException {
         Beeper b = new Beeper();
-        b.tinit();
         b.trun();
     }
     
@@ -24,69 +24,39 @@ public class Beeper extends JPanel{
     DecimalFormat decimalFormat = new DecimalFormat("###00.00");
 
     void trun(){
-    	tgenerateAndPlay();
-    	while(clip.isActive());
-    }
-    void tinit() throws LineUnavailableException{
-    	clip = AudioSystem.getClip();
-    }
-    void tgenerateAndPlay(){
-        try {
-			generateTone();
-			//clip.start();
-		} catch (LineUnavailableException e){
+    	try {
+    		clip = AudioSystem.getClip();
+			tgenerateAndPlay();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-        long begin = System.currentTimeMillis();
-        try {
-			Thread.sleep(300);
-	        long end = begin;
-	        while(clip.isRunning()){
-	        	end = (System.currentTimeMillis());
-	            Thread.sleep(10);
-	        }
-        }
-        catch(InterruptedException e){}
+    	while(clip.isActive());
     }
-    int samplesPerWave(float frequency){
-    	return (int) (sampleRate/frequency);
-    }
+    void tgenerateAndPlay() throws LineUnavailableException, IOException, InterruptedException{
+        clip.stop();
+		clip.close();
+		byte[] buf = new byte[(int)sampleRate*2];
+		AudioFormat af = new AudioFormat(
+		    sampleRate,
+		    16,  // sample size in bits
+		    1,  // channels
+		    true,  // signed
+		    false  // bigendian
+		    );
+		SpeechSynthesizer synth = new SpeechSynthesizer(sampleRate, af);
+		buf = synth.generateAudio();
+	    byte[] b = buf;
+	    AudioInputStream ais = new AudioInputStream(
+	        new ByteArrayInputStream(b),
+	        synth.selfFormat,
+	        buf.length );
 
-    /** Generates a tone, and assigns it to the Clip.
-     * @throws LineUnavailableException  */
-    public void generateTone() throws LineUnavailableException {    	 clip.stop();    	 clip.close();
-
-        int intFPW = 25;
-        int wavelengths = 20;
-        byte[] buf = new byte[(int)sampleRate*2];
-        AudioFormat af = new AudioFormat(
-            sampleRate,
-            8,  // sample size in bits
-            1,  // channels
-            true,  // signed
-            false  // bigendian
-            );        SpeechSynthesizer synth = new SpeechSynthesizer(sampleRate, af);
-        buf = synth.generateAudio();
-        
-        try {
-            byte[] b = buf;
-            AudioInputStream ais = new AudioInputStream(
-                new ByteArrayInputStream(b),
-                synth.selfFormat,
-                buf.length );
-
-            clip.open( ais );
-        } catch(Exception e) {
-            e.printStackTrace();
+	    clip.open( ais );
+		clip.start();
+		Thread.sleep(300);
+        while(clip.isRunning()){
+            Thread.sleep(10);
         }
     }
 
-    /** Provides the byte value for this point in the sinusoidal wave. */
-    private static byte getByteValue(double angle) {
-        int maxVol = 127;
-        return (new Integer(
-            (int)Math.round(
-            Math.sin(angle)*maxVol))).
-            byteValue();
-    }
 }

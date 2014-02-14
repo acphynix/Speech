@@ -55,43 +55,7 @@ public class Analyzer {
 		//write out to file.
 		return head;
 	}
-	public static ArrayList<Point> simplifyPoints(short[] in, double threshold, int begin, int end){
-		ArrayList<Point> keyFrames=new ArrayList<Point>();
-		//find a repeating pattern in the audio sample.
-		int lastX=-1;
-		int lastY=0;
-		double sumOfAngles=0;
-		Point beginPoint=new Point(-1,0);
-		Point lastPoint=new Point(-1,0);
-		double numAngles = 1;
-		for(int i=1;i<in.length;i++){
-			lastPoint = new Point(i+begin-1,in[i+begin-1]);
-			int x=i+begin;
-			int y=in[i+begin];
-			if(x>end)break;
-			if(beginPoint==null){
-				beginPoint=new Point(x,y);
-				continue;		//go to next point, so that angle is not undefined.
-			}
-			double newAngle = Math.toDegrees(Math.atan((double)(y-lastPoint.y)/(double)(x-lastPoint.x)));		//angle between start point and this point.
-			//SpeechSynthesizer.diagPrint(newAngle);
-			if(newAngle>180)newAngle-=360;
-			if(newAngle<-180)newAngle+=360;
-			double averageAngle = (sumOfAngles+newAngle)/(numAngles+1);		//get average angle, NOT including this point
-			if(Math.abs(newAngle - averageAngle)>threshold){		//angle difference > threshold
-				keyFrames.add(new Point(x,y));	//add the current point to list of keyframes
-				sumOfAngles=newAngle;		//reset all counts.
-				beginPoint = new Point(x,y);
-				numAngles=1;
-			}else{
-				numAngles++;
-				sumOfAngles+=newAngle;
-			}
-		}
-		//SpeechSynthesizer.diagPrint("frames: "+keyFrames);
-		//write out to file.
-		return keyFrames;
-	}
+
 	public static void writeWaveformToFile(AudioPoint in, File out){
 		System.out.print("\nExporting...");
 		System.out.println(in);

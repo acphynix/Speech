@@ -45,8 +45,8 @@ public class SpeechSynthesizer {
 				bb.put(data[i*2]);
 				bb.put(data[i*2+1]);
 				shortAudio[i]=bb.getShort(0);
-				newData[i*2]=data[i*2+1];
-				newData[i*2+1]=newData[i*2];
+				newData[i*2]=data[i*2];
+				newData[i*2+1]=data[i*2+1];
 			}
 			return newData;
 		}else throw new java.lang.UnsupportedOperationException("Ashwin: Unsupported audio format.");
@@ -99,13 +99,6 @@ public class SpeechSynthesizer {
 	public byte[] generateAudio(){
 		String filename = "short e";
 		byte[] in = loadAudio(new File("rsc/"+filename+".wav"),selfFormat);
-		byte[] buf = new byte[(int)sampleRate*2];
-        	for(int i=0; i<sampleRate*2; i++){
-        	double time = ((float)(i)/((float)sampleRate));
-            //double angle = ((float)(i)/((float)intFPW))*(Math.PI);
-            double amp = Math.sin(time*440*Math.PI*2)*Math.sin(time);
-            buf[i]=(byte)((Math.sin(amp))*127);
-        }
         rawAudio=in;
         String suffix="A";
       //  double i=3;
