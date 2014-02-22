@@ -38,14 +38,15 @@ public class PatternRecognition {
 				max_mag=newMag;
 			}
 		}
-		//first, search for a beginning index: namely, a region of high contrast in the graph.
+		//beginIndex=3;
+		//first, search for a beginning index: a region of high contrast in the graph.
 		DeltaPoint begin = pattern.get(beginIndex);
 		System.out.println("Begin Index: "+beginIndex+" "+input.get(beginIndex+1).simpleToString()+"- "+begin);
 		for(int i=0;i<pattern.size();i++){
 			DeltaPoint test =pattern.get(i);
 			double diff = begin.difference(test);
 			if(diff<5)System.out.println("Index "+i+", "+pattern.get(i)+", "+diff);
-			if(diff<5 && i>3 && i<pattern.size()-23)results.add(i);
+			if(diff<5 && i>3 && i<pattern.size()-32)results.add(i);
 		}
 		//the results array contains a list of the indices of the closest DeltaPoints to the search pattern (beginIndex)
 		ArrayList<Double> scores = new ArrayList<Double>();
@@ -53,12 +54,20 @@ public class PatternRecognition {
 			double score=0;
 			double[] point_scores = new double[15];
 			int iteration=0;
-			for(int j=i;j<i+5;j++){	//check all values 5 indices into the future...
-				DeltaPoint contender = pattern.get(beginIndex+(j-i));
+			for(int j=i;j<i+15;j++){	//check all values 15 indices into the future...
+				DeltaPoint contender = pattern.get(beginIndex+(j-i));	//the actual template  	DeltaPoint
 				double pointScore=Double.MAX_VALUE;
-				DeltaPoint[] tests=new DeltaPoint[5+iteration];
-				for(int n=0;n<tests.length;n++){	
-					tests[n]=pattern.get(j+n-3);
+				DeltaPoint[] tests=new DeltaPoint[2*(5+iteration)];
+				DeltaPoint cumulPoint = new DeltaPoint(0,0);
+				for(int n=0;n<tests.length;n+=2){
+					//cumulPoint = new DeltaPoint(0,0);
+					//DeltaPoint oldPoint = new DeltaPoint(pattern.get(j-3).rise, pattern.get(j-3).run);
+					DeltaPoint newPoint = new DeltaPoint(pattern.get(j+(n/2)).rise, pattern.get(j+(n/2)).run);
+					cumulPoint.rise+=newPoint.rise;
+					cumulPoint.run+=newPoint.run;
+					tests[n]=new DeltaPoint(cumulPoint.rise, cumulPoint.run);
+					tests[n+1]=pattern.get(j+(n/2)-3);
+					//tests[n]=tests[n+1];
 				}
 				int bestIndex=0;
 				for(int index=0;index<tests.length;index++){
@@ -82,7 +91,7 @@ public class PatternRecognition {
 			    median = ((double)point_scores[point_scores.length/2 -1] + (double)point_scores[point_scores.length/2 - 1])/2;
 			else
 			    median = (double) point_scores[point_scores.length/2];
-			//System.out.println(score+"\t"+median);
+			System.out.println(score+"\t"+median);
 			//score = median;
 			scores.add(score);
 		}
