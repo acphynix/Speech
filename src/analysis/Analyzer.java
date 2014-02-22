@@ -3,6 +3,7 @@ package analysis;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class Analyzer {
 			if(newAngle>180)newAngle-=360;
 			if(newAngle<-180)newAngle+=360;
 			double averageAngle = (sumOfAngles+newAngle)/(numAngles+1);		//get average angle, NOT including this point
-			if(Math.abs(newAngle - averageAngle)>threshold){		//angle difference > threshold
+			if(Math.abs(newAngle - averageAngle)>threshold && Point.distance(x, y, ret.x, ret.y)>100){		//angle difference > threshold && distance from last point is greater than 100.
 				ret.setNext(new AudioPoint(x, y));
 				ret=ret.getNext();
 				sumOfAngles=newAngle;		//reset all counts.
@@ -57,44 +58,46 @@ public class Analyzer {
 	}
 
 	public static void writeWaveformToFile(AudioPoint in, File out){
+		int imgw = 3200;
 		System.out.print("\nExporting...");
 		System.out.println(in);
 		//display repeating waveform in image.
-		BufferedImage output= new BufferedImage(1600,600,BufferedImage.TYPE_INT_RGB);
+		BufferedImage output= new BufferedImage(imgw,600,BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = output.createGraphics();
 		g.setColor(Color.darkGray);
-		g.fillRect(0,0,1600,600);
+		g.fillRect(0,0,imgw,600);
 		g.setColor(Color.black);
-//		double step = Math.max(1,in.size()/1600);
-		double xscale=1;
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+//		double step = Math.max(1,in.size()/imgw);
+		double xscale=1.2;
 		double yscale=0.05;
 		int xstart=in.x;
 		g.setColor(new Color(20,80,140,90));
 		//draw a vertical line every 25 frames.	
-		for(int i=0;i<1600;i+=25*xscale){
+		for(int i=0;i<imgw;i+=25*xscale){
 			g.drawLine(i,0,i,600);
 		}
 		g.setColor(new Color(20,80,140));
 		//draw a vertical line every 50 frames.	
-		for(int i=0;i<1600;i+=50*xscale){
+		for(int i=0;i<imgw;i+=50*xscale){
 			g.drawLine(i,0,i,600);
 		}
 		//draw a dash every 5 frames.
-		for(int i=0;i<1600;i+=5*xscale){
+		for(int i=0;i<imgw;i+=5*xscale){
 			g.drawLine(i,290,i,310);
 		}
 		g.setColor(new Color(100,160,220));
-		for(int i=0;i<1600;i+=100*xscale){
+		for(int i=0;i<imgw;i+=100*xscale){
 			g.drawString(""+(int)(i/xscale),i+3,370);
 		}
 		g.setColor(new Color(20,80,140));
-		g.drawLine(0,300,1600,300);
+		g.drawLine(0,300,imgw,300);
 		AudioPoint t=in;
 		while(t.getNext().getNext()!=null){
 			Point a = new Point(t.x,t.y);
 			Point b = new Point(t.getNext().x,t.getNext().y);
 			if(a.x<xstart)continue;
-			if(a.x>xstart+(1600.0/xscale))break;
+			if(a.x>xstart+(imgw/xscale))break;
 			g.setColor(Color.black);
 			g.drawLine((int)((a.x-xstart)*xscale), 300-(int)(a.y*yscale), (int)((b.x-xstart)*xscale), 300-(int)(b.y*yscale));
 			g.setColor(Color.yellow);

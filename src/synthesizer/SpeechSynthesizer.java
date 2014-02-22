@@ -109,7 +109,7 @@ public class SpeechSynthesizer {
         for(int i=0;i<99;i+=100){
         	index++;
         	suffix+="a";
-        	AudioPoint p = Analyzer.simplify(shortAudio,32.0,i,i+1200);
+        	AudioPoint p = Analyzer.simplify(shortAudio,30.0,i,i+2500);
         	Analyzer.writeWaveformToFile(p,new File("rsc/output/m"+filename+(String.format("%04.1f", (double)i))+".png"));
     		lockDiag=false;
             PatternRecognition pr = new PatternRecognition(p);
