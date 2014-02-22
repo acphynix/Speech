@@ -66,7 +66,7 @@ public class Analyzer {
 		g.fillRect(0,0,1600,600);
 		g.setColor(Color.black);
 //		double step = Math.max(1,in.size()/1600);
-		double xscale=.7;
+		double xscale=1;
 		double yscale=0.05;
 		int xstart=in.x;
 		g.setColor(new Color(20,80,140,90));

@@ -23,21 +23,30 @@ public class AudioPoint {
 		before=bef;
 		before.setNext(this);
 	}
+	public AudioPoint get(int next){
+		if(next<0)throw new java.lang.IllegalArgumentException("Index < 0");
+		AudioPoint temp=this;
+		while(next>0){
+			temp=temp.after;
+			next--;
+		}
+		return temp;
+	}
 	public AudioPoint getNext(){
 		return after;
 	}
 	public AudioPoint getPrev(){
 		return before;
 	}
-	public static String toString(AudioPoint p){
+	private static String toString(AudioPoint p){
 		AudioPoint a=p;
 		String t="";
 		while((a=a.after)!=null){
-			t+=a.dataToString()+"; ";
+			t+=a.simpleToString()+"; ";
 		}
 		return t;
 	}
-	private String dataToString(){
+	public String simpleToString(){
 		return "("+x+", "+y+")";
 	}
 	public String toString(){

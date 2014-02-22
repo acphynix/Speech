@@ -52,7 +52,7 @@ public class Beeper extends JPanel{
 	        buf.length );
 
 	    clip.open( ais );
-		clip.start();
+		//clip.start();
 		Thread.sleep(300);
         while(clip.isRunning()){
             Thread.sleep(10);
