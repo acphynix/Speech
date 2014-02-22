@@ -41,7 +41,7 @@ public class Analyzer {
 			if(newAngle>180)newAngle-=360;
 			if(newAngle<-180)newAngle+=360;
 			double averageAngle = (sumOfAngles+newAngle)/(numAngles+1);		//get average angle, NOT including this point
-			if(Math.abs(newAngle - averageAngle)>threshold && Point.distance(x, y, ret.x, ret.y)>100){		//angle difference > threshold && distance from last point is greater than 100.
+			if(Math.abs(newAngle - averageAngle)>threshold && Point.distance(x, y, ret.getX(), ret.getY())>100){		//angle difference > threshold && distance from last point is greater than 100.
 				ret.setNext(new AudioPoint(x, y));
 				ret=ret.getNext();
 				sumOfAngles=newAngle;		//reset all counts.
@@ -71,7 +71,7 @@ public class Analyzer {
 //		double step = Math.max(1,in.size()/imgw);
 		double xscale=1.2;
 		double yscale=0.05;
-		int xstart=in.x;
+		int xstart=in.getX();
 		g.setColor(new Color(20,80,140,90));
 		//draw a vertical line every 25 frames.	
 		for(int i=0;i<imgw;i+=25*xscale){
@@ -94,8 +94,8 @@ public class Analyzer {
 		g.drawLine(0,300,imgw,300);
 		AudioPoint t=in;
 		while(t.getNext().getNext()!=null){
-			Point a = new Point(t.x,t.y);
-			Point b = new Point(t.getNext().x,t.getNext().y);
+			Point a = new Point(t.getX(),t.getY());
+			Point b = new Point(t.getNext().getX(),t.getNext().getY());
 			if(a.x<xstart)continue;
 			if(a.x>xstart+(imgw/xscale))break;
 			g.setColor(Color.black);

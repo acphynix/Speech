@@ -18,14 +18,16 @@ public class PatternRecognition {
 		AudioPoint t=in;
 		while((t=t.getNext())!=null){
 			AudioPoint v=t.getPrev();
-			pattern.add(new DeltaPoint(t.y-v.y, t.x-v.x));
+			pattern.add(new DeltaPoint(t.getY()-v.getY(), t.getX()-v.getX()));
 		}
-		searchForPatterns();
+		ArrayList<Integer> reps = searchForPatterns();	//repetitions
+		//next, create a Pattern, and feed it all repetitions that are found in the input stream.
 	}
 	/**
-	 * Search for recurring patterns within *pattern*.
+	 * Search for a single recurring pattern within *pattern*.
+	 * @return An arraylist containing the beginning indices of each repeating pattern.
 	 */
-	private void searchForPatterns(){
+	private ArrayList<Integer> searchForPatterns(){
 		System.out.println(pattern);
 		ArrayList<Integer> results= new ArrayList<Integer>();
 		//int beginIndex = random.nextInt(pattern.size());
@@ -57,16 +59,16 @@ public class PatternRecognition {
 			for(int j=i;j<i+15;j++){	//check all values 15 indices into the future...
 				DeltaPoint contender = pattern.get(beginIndex+(j-i));	//the actual template  	DeltaPoint
 				double pointScore=Double.MAX_VALUE;
-				DeltaPoint[] tests=new DeltaPoint[2*(5+iteration)];
+				DeltaPoint[] tests=new DeltaPoint[3*(5+iteration)];
 				DeltaPoint cumulPoint = new DeltaPoint(0,0);
-				for(int n=0;n<tests.length;n+=2){
+				for(int n=0;n<tests.length;n+=3){
+					int curr_index = j+(n/2)-3;
+					tests[n]=pattern.get(curr_index);
 					//cumulPoint = new DeltaPoint(0,0);
 					//DeltaPoint oldPoint = new DeltaPoint(pattern.get(j-3).rise, pattern.get(j-3).run);
-					DeltaPoint newPoint = new DeltaPoint(pattern.get(j+(n/2)).rise, pattern.get(j+(n/2)).run);
-					cumulPoint.rise+=newPoint.rise;
-					cumulPoint.run+=newPoint.run;
-					tests[n]=new DeltaPoint(cumulPoint.rise, cumulPoint.run);
-					tests[n+1]=pattern.get(j+(n/2)-3);
+					DeltaPoint newPoint = new DeltaPoint(pattern.get(curr_index).rise, pattern.get(curr_index).run);
+					tests[n+1]=new DeltaPoint(newPoint.rise+pattern.get(curr_index+1).rise, newPoint.run+pattern.get(curr_index+1).run);
+					tests[n+2]=new DeltaPoint(newPoint.rise+pattern.get(curr_index-1).rise, newPoint.run+pattern.get(curr_index-1).run);
 					//tests[n]=tests[n+1];
 				}
 				int bestIndex=0;
@@ -78,7 +80,7 @@ public class PatternRecognition {
 					}
 				}
 				//j+=bestIndex;
-				pointScore*=pointScore;
+				pointScore*=pointScore;			//square pointScore so that larger values are given more weight.
 				point_scores[iteration]=pointScore;
 				score+=pointScore;
 				iteration++;
@@ -91,13 +93,19 @@ public class PatternRecognition {
 			    median = ((double)point_scores[point_scores.length/2 -1] + (double)point_scores[point_scores.length/2 - 1])/2;
 			else
 			    median = (double) point_scores[point_scores.length/2];
-			System.out.println(score+"\t"+median);
+			//System.out.println(score+"\t"+median);
 			//score = median;
 			scores.add(score);
 		}
+		ArrayList<Integer> finalResults=new ArrayList<Integer>();
 		for(int i=0;i<results.size();i++){
-			if(scores.get(i)<20)System.out.println(results.get(i)+"["+input.get(results.get(i)+1).simpleToString()+"]: "+pattern.get(results.get(i))+" ->\t"+scores.get(i));
+			if(scores.get(i)<2){
+				finalResults.add(results.get(i));
+				System.out.println(input.get(results.get(i)+1).simpleToString());
+			}
 		}
+		System.out.println(finalResults);
+		return finalResults;
 	}
 	private class DeltaPoint{
 		DeltaPoint(int rise, int run){
