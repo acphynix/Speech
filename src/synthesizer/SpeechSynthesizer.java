@@ -113,6 +113,12 @@ public class SpeechSynthesizer {
         	Analyzer.writeWaveformToFile(p,new File("rsc/output/m"+filename+(String.format("%04.1f", (double)i))+".png"));
     		lockDiag=false;
             PatternRecognition pr = new PatternRecognition(p);
+            ArrayList<AudioPoint> ret = pr.getRepeatedWaveforms();
+            int v=0;
+            for(AudioPoint k:ret){
+            	Analyzer.writeWaveformToFile(k,new File("rsc/output/b"+filename+(String.format("%01d", v))+".png"));
+            	v++;
+            }
         }
         //analyze(rawAudio);
     		SpeechSynthesizer.diagPrint(selfFormat);

@@ -20,8 +20,89 @@ public class PatternRecognition {
 			AudioPoint v=t.getPrev();
 			pattern.add(new DeltaPoint(t.getY()-v.getY(), t.getX()-v.getX()));
 		}
-		ArrayList<Integer> reps = searchForPatterns();	//repetitions
+		//System.out.println(input.subList(2, 3));
+		//getRepeatedWaveforms();
 		//next, create a Pattern, and feed it all repetitions that are found in the input stream.
+	}
+	/**
+	 * Combines two AudioPoints into one, preserving some of the elements of both.
+	 * This function assumes that the two audiopoints are relatively similar.
+	 */
+	private AudioPoint synthesize(AudioPoint a, AudioPoint b){
+		AudioPoint ret=new AudioPoint(a.getX(),a.getY());
+		AudioPoint ret_temp=ret;
+		AudioPoint anext;
+		AudioPoint bnext;
+		while(true){
+			anext=a.getNext();
+			bnext=b.getNext();
+			DeltaPoint da = new DeltaPoint(a.getX(), a.getY(), anext.getX(), anext.getY());
+			DeltaPoint db = new DeltaPoint(b.getX(), b.getY(), bnext.getX(), bnext.getY());
+			double diff = da.difference(db);
+			if(diff<1.3){	//nothing to be worried about. just append the average.
+				ret_temp.setNext(new AudioPoint((anext.getX()+bnext.getX())/2.0,(anext.getY()+bnext.getY())/2.0));
+				ret_temp=ret_temp.getNext();
+				a=anext;
+				b=bnext;
+			}else{		//something's different between a and b.
+				boolean fixed=false;
+				if(!fixed){		//1. check if b has extra points.
+					AudioPoint temp=b;
+					iterate:
+					for(int i=0;i<4;i++){
+						temp=temp.getNext();
+						DeltaPoint newb = new DeltaPoint(b.getX(), b.getY(), temp.getX(), temp.getY());
+						double newdiff = da.difference(newb);
+						if(newdiff<1.3){		//we fixed it, so figure out what we did...and do it again.
+							fixed=true;
+							AudioPoint temp2 = b;
+							for(int k=0;k<i;k++){
+								temp2=temp2.getNext();
+								ret_temp.setNext(temp2.simpleCopy());
+							}
+							b=temp2;
+							a=anext;
+							break iterate;
+						}
+					}
+				}
+				if(!fixed){		//2. check if a has extra points.
+					AudioPoint temp=a;
+					iterate:
+					for(int i=0;i<4;i++){
+						temp=temp.getNext();
+						DeltaPoint newa = new DeltaPoint(a.getX(), a.getY(), temp.getX(), temp.getY());
+						double newdiff = db.difference(newa);
+						if(newdiff<1.3){		//we fixed it, so figure out what we did...and do it again.
+							fixed=true;
+							AudioPoint temp2 = a;
+							for(int k=0;k<i;k++){
+								temp2=temp2.getNext();
+								ret_temp.setNext(temp2);
+							}
+							break iterate;
+						}
+					}
+				}
+				//2. check if a has extra points.
+				//3. if not...then find the next index where a and b are similar again.
+				//	3a. average out the problematic area.
+			}
+			if(false)break;
+		}
+		return null;
+	}
+	public ArrayList<AudioPoint> getRepeatedWaveforms(){
+		ArrayList<Integer> reps = searchForPatterns();	//repetitions
+		ArrayList<AudioPoint> ret=new ArrayList<AudioPoint>();
+		for(int ind=0;ind<reps.size()-1;ind++){
+			int i=reps.get(ind);
+			int j=reps.get(ind+1);
+			AudioPoint seq = input.subList(i, j);
+			seq.translate(-seq.getX(), 0);
+			ret.add(seq);
+		}
+		return ret;
 	}
 	/**
 	 * Search for a single recurring pattern within *pattern*.
@@ -111,6 +192,10 @@ public class PatternRecognition {
 		DeltaPoint(int rise, int run){
 			this.rise=rise;
 			this.run=run;
+		}
+		DeltaPoint(double x1, double y1, double x2, double y2){
+			rise = (int)(y2-y1);
+			run = (int)(x2-x1);
 		}
 		int rise;
 		int run;

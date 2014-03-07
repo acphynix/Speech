@@ -58,7 +58,13 @@ public class Analyzer {
 	}
 
 	public static void writeWaveformToFile(AudioPoint in, File out){
+		AudioPoint temp=in;
+		while(temp.getNext()!=null)temp=temp.getNext();
+		double xscale=1.2;
+		double yscale=0.05;
+		int xstart=in.getX();
 		int imgw = 3200;
+		imgw = (int)((temp.getX()-xstart) * xscale);
 		System.out.print("\nExporting...");
 		System.out.println(in);
 		//display repeating waveform in image.
@@ -69,34 +75,35 @@ public class Analyzer {
 		g.setColor(Color.black);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 //		double step = Math.max(1,in.size()/imgw);
-		double xscale=1.2;
-		double yscale=0.05;
-		int xstart=in.getX();
+		System.out.println("XStart "+xstart);
 		g.setColor(new Color(20,80,140,90));
 		//draw a vertical line every 25 frames.	
-		for(int i=0;i<imgw;i+=25*xscale){
-			g.drawLine(i,0,i,600);
+		for(int i=xstart;i<xstart+(imgw/xscale);i+=25*xscale){
+			g.drawLine(i-xstart,0,i-xstart,600);
 		}
 		g.setColor(new Color(20,80,140));
 		//draw a vertical line every 50 frames.	
-		for(int i=0;i<imgw;i+=50*xscale){
-			g.drawLine(i,0,i,600);
+		for(int i=xstart;i<xstart+(imgw/xscale);i+=50*xscale){
+			g.drawLine(i-xstart,0,i-xstart,600);
 		}
 		//draw a dash every 5 frames.
-		for(int i=0;i<imgw;i+=5*xscale){
-			g.drawLine(i,290,i,310);
+		for(int i=xstart;i<xstart+(imgw/xscale);i+=5*xscale){
+			g.drawLine(i-xstart,290,i-xstart,310);
 		}
 		g.setColor(new Color(100,160,220));
-		for(int i=0;i<imgw;i+=100*xscale){
-			g.drawString(""+(int)(i/xscale),i+3,370);
+		for(int i=xstart;i<xstart+(imgw/xscale);i+=100*xscale){
+			g.drawString(""+(int)((i)/xscale),i-xstart+3,370);
 		}
 		g.setColor(new Color(20,80,140));
 		g.drawLine(0,300,imgw,300);
 		AudioPoint t=in;
-		while(t.getNext().getNext()!=null){
+		while(t.getNext()!=null){
 			Point a = new Point(t.getX(),t.getY());
 			Point b = new Point(t.getNext().getX(),t.getNext().getY());
-			if(a.x<xstart)continue;
+			if(a.x<xstart){
+				t=t.getNext();
+				continue;
+			}
 			if(a.x>xstart+(imgw/xscale))break;
 			g.setColor(Color.black);
 			g.drawLine((int)((a.x-xstart)*xscale), 300-(int)(a.y*yscale), (int)((b.x-xstart)*xscale), 300-(int)(b.y*yscale));

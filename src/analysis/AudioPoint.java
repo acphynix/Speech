@@ -44,7 +44,21 @@ public class AudioPoint {
 		}
 		return tempCloned;
 	}
-	private AudioPoint simpleCopy(){
+	public AudioPoint subList(int begin, int end){
+		if(begin<0 || end<0)throw new java.lang.UnsupportedOperationException("Ashwin: Cannot pass negative numbers");
+		AudioPoint ret = null;
+		AudioPoint temp=this;
+		for(int i=0;i<begin;i++)temp=temp.after;
+		ret=temp.simpleCopy();
+		AudioPoint tempCloned=ret;
+		for(int i=begin;i<end;i++){
+			tempCloned.setNext(temp.getNext().simpleCopy());
+			temp=temp.getNext();
+			tempCloned=tempCloned.after;
+		}
+		return ret;
+	}
+	public AudioPoint simpleCopy(){
 		AudioPoint k=new AudioPoint(x,y);
 		k.x=x;
 		k.y=y;
@@ -76,6 +90,11 @@ public class AudioPoint {
 		}
 		return temp;
 	}
+	public AudioPoint getLast(){
+		AudioPoint temp=this;
+		while(temp.after!=null)temp=temp.after;
+		return temp;
+	}
 	public AudioPoint getNext(){
 		return after;
 	}
@@ -104,5 +123,41 @@ public class AudioPoint {
 	}
 	public int getY() {
 		return (int)y;
+	}
+	/**
+	 * scales the x and y components of this audiopoint as well as all parents and children.
+	 * @param parameters to multiply x and y by.
+	 */
+	public void scale(double sx, double sy){
+		AudioPoint temp=this;
+		while((temp=temp.after)!=null){		//all points after this.
+			temp.x*=sx;
+			temp.y*=sy;
+		}
+		temp=this;
+		while((temp=temp.before)!=null){	//all points before this.
+			temp.x*=sx;
+			temp.y*=sy;
+		}
+		x*=sx;							//this.
+		y*=sy;
+	}
+	/**
+	 * translates the x and y components of this audiopoint as well as all parents and children.
+	 * @param parameters to multiply x and y by.
+	 */
+	public void translate(double tx, double ty){
+		AudioPoint temp=this;
+		while((temp=temp.after)!=null){		//all points after this.
+			temp.x+=tx;
+			temp.y+=ty;
+		}
+		temp=this;
+		while((temp=temp.before)!=null){	//all points before this.
+			temp.x+=tx;
+			temp.y+=ty;
+		}
+		x+=tx;							//this.
+		y+=ty;
 	}
 }

@@ -56,7 +56,7 @@ public class Beeper extends JPanel{
 		Thread.sleep(300);
         while(clip.isRunning()){
             Thread.sleep(10);
-        }
+        }	
     }
 
 }
